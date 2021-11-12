@@ -9,7 +9,7 @@ export class EventsService {
 
   constructor(private http:HttpClient){}
 
-  private baseUrl: string = 'http://localhost:8080';
+  private baseUrl: string = 'https://secret-santa-api-2021.herokuapp.com';
   private eventsUrl: string = this.baseUrl + '/api/v1/events/';
 
 
