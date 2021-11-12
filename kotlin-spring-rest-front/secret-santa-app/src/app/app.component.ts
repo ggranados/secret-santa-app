@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { FormControl } from '@angular/forms'
-import { HttpClient } from '@angular/common/http'
+import { FormControl, FormGroup } from '@angular/forms'
+import { Event, EventRequest, EventsService } from './events.service';
 
 @Component({
   selector: 'app-root',
@@ -11,31 +11,52 @@ import { HttpClient } from '@angular/common/http'
 export class AppComponent {
   title = 'secret-santa-app';
 
-  constructor(private http:HttpClient){}
+  constructor( private eventService: EventsService) {}
+  
+  currentEvents: Event[] = [];
+  currentTitle: string = '';
+  currentDate: string = '';
 
-  private baseUrl: string = 'http://localhost:8080';
-  private eventsUrl: string = this.baseUrl + 'api/v1/events/';
-
-  events: Event[] = [];
+  eventsSearchForm: FormGroup = new FormGroup({});
 
   ngOnInit(){
-    this.events = [ 
-      new Event("1", "Guadalupe", "12/12/2021"),
-      new Event("2", "Navidad", "31/12/2021"),
-      new Event("3", "Reyes Magos", "06/01/2022") 
-    ];
+    
+    /* Events Form definition */
+    this.eventsSearchForm = new FormGroup({
+      title: new FormControl(''),
+      date: new FormControl('')
+    });
+
+    this.getCurrentEvents();
+
+    /*Events Form on Changes subscription  */
+    this.eventsSearchForm.valueChanges.subscribe(form =>{
+      this.currentTitle = form.title;
+      this.currentDate = form.date;
+
+      console.log(this.currentTitle);
+      console.log(this.currentDate);
+    });
+
   }
+
+  /* GET all current events*/
+  getCurrentEvents(){
+    this.eventService.getEvents()
+      .subscribe(events => this.currentEvents = events);
+      console.log(this.currentEvents);
+  }
+
+  /* POST creat event */
+  createEvent(){
+    console.log('Simón');
+    this.eventService.createEvent(new EventRequest('', this.currentTitle, this.currentDate))
+      .subscribe(postResult => {
+        console.log(postResult)
+        this.getCurrentEvents();
+      }
+    );
+  }
+
 }
 
-
-export class Event {
-  id: string;
-  title: string;
-  date: string;
-
-  constructor(id: string, title: string, date: string){
-    this.id = id;
-    this.title = title;
-    this.date = date;
-  }
-}
